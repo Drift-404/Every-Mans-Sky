@@ -1,4 +1,9 @@
-import pygame, random, noise
+import pygame
+import random
+import noise
+import math
+
+
 class PlanetGenerator:
     def __init__(self, radius, planet_type):
         self.radius = radius
@@ -13,13 +18,13 @@ class PlanetGenerator:
 
     def _generate_texture(self):
         biome_palettes = {
-            "Terran": {  
+            "Terran": {
                 "ocean": (30, 70, 180),
                 "shore": (240, 220, 140),
                 "grass": (40, 160, 40),
                 "desert": (210, 180, 80),
                 "rock": (110, 110, 110),
-                "ice": (240, 250, 255)
+                "ice": (240, 250, 255),
             },
             "Desert": {
                 "ocean": (160, 130, 60),
@@ -27,7 +32,7 @@ class PlanetGenerator:
                 "grass": (200, 140, 40),
                 "desert": (230, 200, 70),
                 "rock": (170, 150, 100),
-                "ice": (240, 240, 240)
+                "ice": (240, 240, 240),
             },
             "Ice": {
                 "ocean": (160, 200, 255),
@@ -35,7 +40,7 @@ class PlanetGenerator:
                 "grass": (200, 200, 255),
                 "desert": (210, 220, 250),
                 "rock": (210, 220, 240),
-                "ice": (255, 255, 255)
+                "ice": (255, 255, 255),
             },
             "Volcanic": {
                 "ocean": (30, 0, 0),
@@ -43,7 +48,7 @@ class PlanetGenerator:
                 "grass": (140, 20, 20),
                 "desert": (200, 40, 0),
                 "rock": (60, 60, 60),
-                "ice": (255, 240, 100)
+                "ice": (255, 240, 100),
             },
             "Alien": {
                 "ocean": (140, 0, 200),
@@ -51,37 +56,36 @@ class PlanetGenerator:
                 "grass": (0, 255, 200),
                 "desert": (180, 0, 255),
                 "rock": (100, 200, 255),
-                "ice": (255, 255, 0)
+                "ice": (255, 255, 0),
             },
-            "Gas": {       
+            "Gas": {
                 "ocean": (150, 200, 255),
                 "shore": (200, 220, 255),
                 "grass": (180, 180, 255),
                 "desert": (160, 160, 255),
                 "rock": (120, 120, 255),
-                "ice": (255, 255, 255)
-            }
+                "ice": (255, 255, 255),
+            },
         }
 
         palette = biome_palettes.get(self.planet_type, biome_palettes["Terran"])
-        radius = self.radius
+        r = self.radius
 
-        import noise, math
-        for y in range(-radius, radius):
-            for x in range(-radius, radius):
-                dist = math.sqrt(x*x + y*y)
-                if dist > radius:
+        for y in range(-r, r):
+            for x in range(-r, r):
+                if x * x + y * y > r * r:
                     continue
 
-                nx = (x / radius) * 2
-                ny = (y / radius) * 2
+                nx = (x / r) * 2
+                ny = (y / r) * 2
 
                 elevation = noise.pnoise2(
-                    nx, ny,
+                    nx,
+                    ny,
                     octaves=5,
                     persistence=0.5,
                     lacunarity=2.0,
-                    base=self.seed
+                    base=self.seed,
                 )
 
                 if elevation < -0.05:
@@ -101,6 +105,7 @@ class PlanetGenerator:
                 shaded = (
                     max(0, min(color[0] - shade, 255)),
                     max(0, min(color[1] - shade, 255)),
-                    max(0, min(color[2] - shade, 255))
+                    max(0, min(color[2] - shade, 255)),
                 )
-                self.surface.set_at((x + radius, y + radius), shaded)
+
+                self.surface.set_at((x + r, y + r), shaded)
